@@ -13,7 +13,7 @@ output will be like this
 
 ```
 
-general setup is a cobination of these options: 
+general setup is a combination of these options: 
 ```
 [
     ["select", "radio"],
