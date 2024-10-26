@@ -1,16 +1,11 @@
 let currentQuestionIndex = 0;
+const started_at = Date.now()
 
 const survey_options = [
   ["select", "radio"],
   ["onebyone", "list"], 
   ["background", "no-background"],
 ];
-
-let output = {
-    setup: [0, 0, 1], // means survey_options[0,0], survey_options[1,0], survey_options[2,1]
-    duration: 160000, // how long it took users fill the form in ms
-    feedback: 4, // a number between 1 to 10
-}
 
 const randomize_setup = () => {
   let setup = [];
@@ -252,14 +247,14 @@ function openSatisfactionMeterModal() {
                   <p>تا چه میزان از پژوهشی که شیوه‌ای که محتوا این فرم به شما ارائه شد، راضی بودید؟</p>
                   <div class="d-flex align-items-center gap-2">
                       <span class="small text-center">اصلا رازی نبودم</span>
-                      <input type="range" class="form-range flex-grow-1" id="customRange" 
+                      <input type="range" class="form-range flex-grow-1" id="feedback" 
                           min="0" max="100" step="1" value="50">
                       <span class="small text-center">کاملا راضی بودم</span>
                   </div>
               </div>
               <div class="modal-footer">
                   <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
-                  <button class="btn btn-primary" onclick="">ثبت نظر</button> 
+                  <button class="btn btn-primary" onclick="generate_output()">ثبت نظر</button> 
               </div>
           </div>
       </div>
@@ -276,4 +271,15 @@ function openSatisfactionMeterModal() {
   modalDiv.addEventListener('hidden.bs.modal', function () {
       document.body.removeChild(modalDiv);
   });
+}
+
+const generate_output = () => {
+
+    let output = {
+        setup: GENERAL_SETUP, // means survey_options[0,0], survey_options[1,0], survey_options[2,1]
+        duration: (Date.now()-started_at)/1000, // how long it took users fill the form in s
+        feedback: $("#feedback").val(), // a number between 1 to 100
+    }
+
+    console.log(output)
 }
