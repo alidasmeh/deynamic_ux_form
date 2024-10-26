@@ -240,13 +240,13 @@ function openSatisfactionMeterModal() {
       <div class="modal-dialog">
           <div class="modal-content">
               <div class="modal-header">
-                  <h5 class="modal-title">Satisfaction Meter</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  <h5 class="modal-title">رضایت سنج</h5>
+                  <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
               </div>
               <div class="modal-body">
-                  <p>تا چه میزان از پژوهشی که شیوه‌ای که محتوا این فرم به شما ارائه شد، راضی بودید؟</p>
+                  <p>تا چه میزان از شیوه‌ای که محتوا این فرم به شما ارائه شد، راضی بودید؟</p>
                   <div class="d-flex align-items-center gap-2">
-                      <span class="small text-center">اصلا رازی نبودم</span>
+                      <span class="small text-center">اصلا راضی نبودم</span>
                       <input type="range" class="form-range flex-grow-1" id="feedback" 
                           min="0" max="100" step="1" value="50">
                       <span class="small text-center">کاملا راضی بودم</span>
