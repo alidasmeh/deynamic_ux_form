@@ -2,7 +2,7 @@ let currentQuestionIndex = 0;
 const started_at = Date.now()
 
 const survey_options = [
-  ["select", "radio"],
+  ["radio"],
   ["onebyone", "list"], 
   ["background", "no-background"],
 ];
@@ -53,7 +53,7 @@ const create_card = (question_index, question) => {
 
 
 
-    let card = `<div class="card " style="background: ${get_background(question_section)}; ${get_card_format()}">
+    let card = `<div class="card" data-questionIndex='${question_index}' style="background: ${get_background(question_section)}; ${get_card_format()}">
                     <div class="card-body">
                         ${question_content}
                         ${next_prev_buttons}
@@ -67,14 +67,14 @@ const create_radio_tag = (question_index, question) => {
     let options_html = ''
     question.options.forEach(option =>
         options_html += `<div class="form-check" style="margin-right: 1.5em;">
-                            <input class="form-check-input" style='float: right; margin-right: -1.5em; margin-left: 0;' type="radio" name="question_${question_index}" id="option1" value="${option}">
+                            <input class="form-check-input" style='float: right; margin-right: -1.5em; margin-left: 0;' type="radio" name="question_${question_index}" value="${option}">
                             <label class="form-check-label">
                                 ${option}
                             </label>
                         </div>`
     )
 
-    return `<h5 class="card-title">سوال ${question_index + 1}: ${question.question}</h5>
+    return `<h5 class="card-title"> ${question_index + 1}- ${question.question}</h5>
         <div>
             ${options_html}
         </div>`
@@ -86,17 +86,17 @@ const create_select_tag = (question_index, question) => {
         options_html += `<option value='${option}'>${option}</option>`
     )
 
-    return `<h5 class="card-title">سوال ${question_index + 1}: ${question.question}</h5>
+    return `<h5 class="card-title"> ${question_index + 1}- ${question.question}</h5>
         <div>
             <select class='form-select' name='question_${question_index}'>
-                <option value="0">select an option</option>
+                <option value="0">یک گزینه را انتخاب کنید.</option>
                 ${options_html}
             </select>
         </div>`
 }
 
 const create_input_tag = (question_index, question) => {
-    return `<h5 class="card-title">سوال ${question_index + 1}: ${question.question}</h5>
+    return `<h5 class="card-title"> ${question_index + 1}- ${question.question}</h5>
             <div class="form-group">
                 <input type="text" class="form-control" name='question_${question_index}' placeholder="${question.options[0]}">
             </div>`
@@ -115,7 +115,7 @@ const final_card = () => {
 const get_background = (section) => {
     if (section == 1) return '#f1ffe3'
     if (section == 2) return '#e3fff5'
-    if (section == 3) return '#e3f3ff'
+    if (section == 3) return '#a3f3ff'
     if (section == 4) return '#e7e3ff'
     if (section == 5) return '#f8e3ff'
     if (section == 6) return '#ffe3e3'
@@ -228,6 +228,18 @@ const get_card_format = () => {
 }
 
 function openSatisfactionMeterModal() {
+    let responses = collect_responses()
+
+    let stop = false
+    responses.forEach((row)=>{
+        console.log(row)
+        if (row == undefined) return stop = true
+        if (row == null) return stop = true
+        if (row.length == 0) return stop = true
+        if (row == 0) return stop = true
+    })
+    if( stop ) return alert('پاسخ به تمام سوالات اجباری است. ');
+
   // Create modal elements
   const modalDiv = document.createElement('div');
   modalDiv.className = 'modal fade';
@@ -273,13 +285,102 @@ function openSatisfactionMeterModal() {
   });
 }
 
-const generate_output = () => {
+const generate_output = async () => {
 
     let output = {
         setup: GENERAL_SETUP, // means survey_options[0,0], survey_options[1,0], survey_options[2,1]
         duration: (Date.now()-started_at)/1000, // how long it took users fill the form in s
         feedback: $("#feedback").val(), // a number between 1 to 100
+        responses: collect_responses(),
+        browser_info: get_browser_info()
     }
 
-    console.log(output)
+    try {
+        const response = await fetch('/api/records', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(output)
+        });
+
+        if (response.ok) {
+            alert('با موفقیت ثبت شد.');
+        } else {
+            throw new Error('خطا رخ داده است.');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('خطا رخ داده است ۲.');
+    }
+}
+
+const collect_responses = ()=>{
+    let responses = data.map((question, index)=>{
+        if(question.type == 'text') return $(`[name='question_${index}']`).val()
+        if(question.type == 'one') {
+            if(GENERAL_SETUP[0] == 'radio') return $(`[name='question_${index}']:checked`).val()
+            if(GENERAL_SETUP[0] == 'select') return $(`[name='question_${index}']`).val()
+        }
+    })
+    console.log(responses)
+    return responses
+}
+
+const get_browser_info = ()=>{
+    const browserInfo ={
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        language: navigator.language,
+        cookieEnabled: navigator.cookieEnabled,
+        onLine: navigator.onLine,
+        vendor: navigator.vendor
+    };
+    const screenInfo = {
+        width: window.screen.width,
+        height: window.screen.height,
+        availWidth: window.screen.availWidth,
+        availHeight: window.screen.availHeight,
+        colorDepth: window.screen.colorDepth,
+        pixelDepth: window.screen.pixelDepth
+    };
+    const windowInfo = {
+        innerWidth: window.innerWidth,
+        innerHeight: window.innerHeight,
+        outerWidth: window.outerWidth,
+        outerHeight: window.outerHeight
+    };
+
+    const browser = get_browser()
+
+    return {
+        browserInfo,
+        screenInfo,
+        windowInfo,
+        browser,
+        is_mobile: is_mobile()
+    }
+}
+
+function get_browser() {
+    const userAgent = navigator.userAgent;
+    let browser = "Unknown";
+    
+    if (userAgent.match(/chrome|chromium|crios/i)) {
+        browser = "Chrome";
+    } else if (userAgent.match(/firefox|fxios/i)) {
+        browser = "Firefox";
+    } else if (userAgent.match(/safari/i)) {
+        browser = "Safari";
+    } else if (userAgent.match(/opr\//i)) {
+        browser = "Opera";
+    } else if (userAgent.match(/edg/i)) {
+        browser = "Edge";
+    } 
+    
+    return browser;
+}
+
+function is_mobile() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
