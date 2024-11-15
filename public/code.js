@@ -2,9 +2,10 @@ let currentQuestionIndex = 0;
 const started_at = Date.now()
 
 const survey_options = [
-  ["radio"],
+  ["radio", "select"],
   ["onebyone", "list"], 
   ["background", "no-background"],
+  ["progressbar", "no-progressbar"],
 ];
 
 const randomize_setup = () => {
@@ -23,7 +24,11 @@ const render = (questions) => {
 
     create_card(questions.length, { type: "final_card" })
 
-    if (GENERAL_SETUP[1] == 'onebyone') init_card_moving()
+    if (GENERAL_SETUP[1] == 'onebyone') {
+        init_card_moving()
+
+        if (GENERAL_SETUP[3] == 'progressbar') init_progress_bar()
+    }
 }
 
 const create_card = (question_index, question) => {
@@ -160,6 +165,8 @@ function handleNavigation(questionCards) {
             
             // Update button states
             updateNavigationButtons(questionCards);
+
+            update_progress_bar(currentQuestionIndex)
         });
     });
 }
@@ -383,4 +390,15 @@ function get_browser() {
 
 function is_mobile() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+const init_progress_bar = ()=>{
+    $("#progressbarBox").html(`<div class="progress">
+        <div class="progress-bar" id='progressbar' role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>`)
+}
+
+const update_progress_bar = (currentQuestionIndex)=>{
+    let width_percent = (currentQuestionIndex/data.length)*100;
+    $("#progressbar").css("width", width_percent+"%")
 }
