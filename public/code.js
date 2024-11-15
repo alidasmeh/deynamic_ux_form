@@ -313,6 +313,7 @@ const generate_output = async () => {
 
         if (response.ok) {
             alert('با موفقیت ثبت شد.');
+            window.close()
         } else {
             throw new Error('خطا رخ داده است.');
         }
