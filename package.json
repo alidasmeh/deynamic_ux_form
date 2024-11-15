@@ -2,9 +2,11 @@
   "name": "dynamic_ux_form",
   "version": "1.0.0",
   "description": "This project is run to explore a new method of automated UI/UX design.",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "run": "node app.js",
+    "start": "node app.js"
   },
   "keywords": [],
   "author": "",
