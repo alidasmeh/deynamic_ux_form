@@ -17,9 +17,19 @@ if (!fs.existsSync(recordsPath)) {
     fs.writeFileSync(recordsPath, '[]', 'utf8');
 }
 
+var global_counter = 1
+
 app.get('/', (req, res) => {
+    global_counter++;
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+
+app.get('/counter', (req, res) => {
+    global_counter++;
+    res.send({"counter": global_counter})
+});
+
+
 
 // POST endpoint to add records
 app.post('/api/records', (req, res) => {

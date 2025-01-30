@@ -10,8 +10,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
 
-    <script src="/data.js"></script>
-    <script src="/code.js"></script>
+    <script src="/data_3.js?3"></script>
+    <script src="/code.js?2"></script>
 
     <style>
         @font-face{
@@ -32,7 +32,10 @@
     </div>
 
     <script>
-        render(data)
+    (async() => {
+      await render(data)
+    })()
+        
     </script>
 
 </body>

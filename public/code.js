@@ -1,22 +1,79 @@
 let currentQuestionIndex = 0;
 const started_at = Date.now()
 
-const survey_options = [
-  ["radio", "select"],
-  ["onebyone", "list"], 
-  ["background", "no-background"],
-  ["progressbar", "no-progressbar"],
-];
+// const survey_options = [
+//   ["radio", "select"],
+//   ["onebyone", "list"], 
+//   ["background", "no-background"],
+//   ["progressbar", "no-progressbar"],
+// ];
 
-const randomize_setup = () => {
-  let setup = [];
-  survey_options.forEach((row) => {
-    setup.push(row[Math.floor(Math.random() * row.length)]);
-  });
-  return setup;
+const permutations = [
+  [ 'radio', 'onebyone', 'background', 'progressbar' ],
+  [ 'radio', 'onebyone', 'background', 'no-progressbar' ],
+  [ 'radio', 'onebyone', 'no-background', 'progressbar' ],
+  [ 'radio', 'onebyone', 'no-background', 'no-progressbar' ],
+  [ 'radio', 'list', 'background', 'no-progressbar' ],
+  [ 'radio', 'list', 'no-background', 'no-progressbar' ],
+  [ 'select', 'onebyone', 'background', 'progressbar' ],
+  [ 'select', 'onebyone', 'background', 'no-progressbar' ],
+  [ 'select', 'onebyone', 'no-background', 'progressbar' ],
+  [ 'select', 'onebyone', 'no-background', 'no-progressbar' ],
+  [ 'select', 'list', 'background', 'no-progressbar' ],
+  [ 'select', 'list', 'no-background', 'no-progressbar' ]
+]
+
+const setup = async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const model = urlParams.get('model');
+    
+    let counter = await fetch('/counter', {method: "get"})
+    counter = await counter.json()
+    
+    console.log(`permutations number : `, counter['counter']%12)
+    
+    return permutations[counter['counter']%12]
+    // if (model >=1 && model <= 16){
+    //     return permutations[model-1]
+    // }
+    
+    // const records = await get_the_last_row()
+    // if (records.length == 0 || records[records.length-1]['model'] == 15 ){
+    //     GENERAL_SETUP_index = 0
+    //     console.log(`GENERAL_SETUP_index`, GENERAL_SETUP_index)
+    //     return permutations[0]
+    // }else{
+    //     GENERAL_SETUP_index = records[records.length-1]['model']+1
+    //     console.log(`GENERAL_SETUP_index`, GENERAL_SETUP_index)
+    //     return permutations[GENERAL_SETUP_index]
+    // }    
+
+
+    // GENERAL_SETUP_index = 0
+    // console.log(`GENERAL_SETUP_index`, GENERAL_SETUP_index)
+    // return permutations[0]
 };
 
-const render = (questions) => {
+const get_the_last_row = async ()=>{ 
+    const response = await fetch('/api/records', {method: "get"})
+    let res = await response.json()
+    console.log('res', res)
+    return res
+}
+
+// const setup = () => {
+//   let setup = [];
+//   survey_options.forEach((row) => {
+//     setup.push(row[Math.floor(Math.random() * row.length)]);
+//   });
+//   return setup;
+// };
+var GENERAL_SETUP = ['select', 'onebyone', 'background', 'progressbar']
+var GENERAL_SETUP_index = -1
+
+const render = async (questions) => {
+    GENERAL_SETUP = await setup()
+    
     console.log(`GENERAL_SETUP: `, GENERAL_SETUP)
     questions.forEach((question, index) => {
         create_card(index, question)
@@ -127,8 +184,6 @@ const get_background = (section) => {
 
     return 'white';
 }
-
-const GENERAL_SETUP = randomize_setup()
 
 
 // Initially hide all cards except the first one
@@ -295,6 +350,7 @@ function openSatisfactionMeterModal() {
 const generate_output = async () => {
 
     let output = {
+        model: GENERAL_SETUP_index,
         setup: GENERAL_SETUP, // means survey_options[0,0], survey_options[1,0], survey_options[2,1]
         duration: (Date.now()-started_at)/1000, // how long it took users fill the form in s
         feedback: $("#feedback").val(), // a number between 1 to 100
